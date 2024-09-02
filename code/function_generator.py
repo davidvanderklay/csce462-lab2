@@ -47,21 +47,39 @@ def get_user_input():
 
 def generate_waveform(shape, frequency, max_voltage):
     t = 0.0
-    tStep = 1 / (frequency * 1000)  # Adjust step size based on frequency
-    max_dac_value = 4095
-    v_max = max_voltage
+    tStep = 1 / (frequency * 1000)  # Calculate time step based on frequency
+    max_dac_value = 4095  # 12-bit DAC range
+    v_max = max_voltage  # Maximum voltage output
 
     while True:
         if GPIO.input(BUTTON_PIN) == GPIO.HIGH:
             if shape == "square":
-                value = int(max_dac_value * (1.0 if (t % (1 / frequency) < 1 / (2 * frequency)) else 0) * (v_max / max_voltage))
+                # Generate square wave
+                cycle_time = 1 / frequency
+                half_cycle = cycle_time / 2
+                time_in_cycle = t % cycle_time
+                if time_in_cycle < half_cycle:
+                    value = int(max_dac_value * (v_max / max_voltage))
+                else:
+                    value = 0
             elif shape == "triangle":
-                value = int(max_dac_value * abs(2 * ((t * frequency) % 1) - 1) * (v_max / max_voltage))
+                # Generate triangle wave
+                cycle_time = 1 / frequency
+                time_in_cycle = t % cycle_time
+                normalized_time = time_in_cycle / cycle_time
+                value = int(max_dac_value * (2 * abs(normalized_time - 0.5)) * (v_max / max_voltage))
             elif shape == "sin":
+                # Generate sine wave
                 value = int(max_dac_value * (0.5 + 0.5 * math.sin(2 * math.pi * frequency * t)) * (v_max / max_voltage))
+            else:
+                print("Invalid waveform shape.")
+                return
 
+            # Output the generated value to the DAC
             dac.value = value
+            # Increment time
             t += tStep
+            # Wait for the next step
             time.sleep(tStep)
         else:
             # If button is not pressed, you can add a small delay to save CPU
