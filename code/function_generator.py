@@ -8,11 +8,11 @@ import RPi.GPIO as GPIO
 # pin for button
 BUTTON_PIN = 23
 
-# Initialize DAC and I2C
+# initialize DAC and I2C
 i2c = busio.I2C(board.SCL, board.SDA)
 dac = MCP4725(i2c)
 
-# Button setup
+# button setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
