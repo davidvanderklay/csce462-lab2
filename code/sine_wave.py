@@ -6,7 +6,7 @@ from adafruit_mcp4725 import MCP4725
 
 # Create an I2C bus object and initialize the DAC
 i2c = busio.I2C(board.SCL, board.SDA)
-dac = MCP4725(i2c, address=0x62)
+dac = MCP4725(i2c)
 
 def sin_wave():
     t = 0.0
